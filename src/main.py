@@ -13,3 +13,4 @@ if __name__ == "__main__":
     database.clear_table()
     
     Scraping(url, database).start_scraping()
+    database.dump_database()
