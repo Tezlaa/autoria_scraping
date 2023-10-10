@@ -9,7 +9,7 @@ class TicketInfo:
     price_usd: int
     odometer: int | None
     username: str | None
-    phone_number: str | None
+    phone_number: int | None
     image_url: str | None
     images_count: int | None
     car_number: str | None

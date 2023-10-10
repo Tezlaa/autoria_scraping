@@ -1,8 +1,8 @@
 services:
   database:
-    image: postgres
+    image: postgres:15.3
     volumes:
-      - database:/var/lib/postgresql/data
+      - database-with-celery:/var/lib/postgresql/data
     env_file:
       - .env
       
@@ -41,4 +41,4 @@ services:
       - redis
       
 volumes:
-  database:
+  database-with-celery:

@@ -27,7 +27,7 @@ class Database:
                 price_usd INTEGER,
                 odometer INTEGER,
                 username VARCHAR(256),
-                phone_number VARCHAR(256),
+                phone_number INTEGER,
                 image_url VARCHAR(256),
                 images_count INTEGER,
                 car_number VARCHAR(256),
@@ -49,15 +49,26 @@ class Database:
                 ) ''', astuple(data))
         self.conn.commit()
     
-    def show_cars(self) -> None:
+    def select_all_cars(self) -> list:
         self.cursor.execute('SELECT * FROM used_cars')
-        cars = self.cursor.fetchall()
+        return self.cursor.fetchall()
+    
+    def count_cars(self) -> int:
+        self.cursor.execute('SELECT COUNT(*) FROM used_cars')
+        count_fetch = self.cursor.fetchone()
         
-        for car in cars:
+        if count_fetch is not None:
+            return int(count_fetch[0])
+        
+        raise ValueError('Count is null')
+            
+    def show_cars(self) -> None:
+        for car in self.select_all_cars():
             print(car)
     
     def clear_table(self) -> None:
         self.cursor.execute('TRUNCATE used_cars')
+        self.conn.commit()
     
     def dump_database(self) -> None:
         dump_path = 'database/dumps/'

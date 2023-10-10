@@ -17,6 +17,8 @@ app.conf.beat_schedule = {
     },
     'create-task-dump-every-12-am': {
         'task': 'tasks.create_database_dump_task',
-        'schedule': crontab(hour='0', minute='0'),
+        # 'schedule': crontab(hour='0', minute='0'),
+        'schedule': crontab(minute='*/1'),
+        
     }
 }

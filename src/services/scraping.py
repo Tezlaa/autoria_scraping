@@ -84,10 +84,12 @@ class Scraping(FieldScraping):
         thousands = thousands_str.strip().split(' ')[0] + '000'
         return int(thousands)
         
-    def __get_phone_number(self, car_id: int, soup: BeautifulSoup) -> str:
+    def __get_phone_number(self, car_id: int, soup: BeautifulSoup) -> int:
         data_hash = self.get_phone_number_hash(soup)
         api_url = f'https://auto.ria.com/users/phones/{car_id}?hash={data_hash}'
-        return self.get_page_response(api_url).json().get('formattedPhoneNumber').strip()
+        number = self.get_page_response(api_url).json().get('formattedPhoneNumber')
+        currect_format_number = number.strip().replace('(', '').replace(')', '').replace(' ', '')
+        return int(currect_format_number)
         
     def __get_ticket_link(self, ticket) -> str:
         address_tag = ticket.find('a', class_='address')
