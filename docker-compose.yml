@@ -1,0 +1,55 @@
+services:
+  database:
+    image: postgres
+    volumes:
+      - database:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    env_file:
+      - .env
+    depends_on:
+      - database
+    command: >
+      sh -c "python main.py"
+
+  redis:
+    image: redis:latest
+    hostname: redis
+
+  celery_worker:
+    build:
+      context: .
+    hostname: celery_worker
+    entrypoint: celery
+    command: -A config.celery.app worker -l info
+    volumes:
+      - ./src:/src
+    env_file:
+      - .env
+    links:
+      - redis
+    depends_on:
+      - redis
+  
+  celery_beat:
+    build:
+      context: .
+    hostname: celery_beat
+    entrypoint: celery
+    command: -A config.celery.app beat -l info
+    volumes:
+      - ./src:/src
+    env_file:
+      - .env
+    links:
+      - redis
+    depends_on:
+      - redis
+      
+volumes:
+  database:
