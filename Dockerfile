@@ -28,5 +28,3 @@ RUN chown -R myuser:myuser .
 
 # Switch to the non-root user
 USER myuser
-
-CMD ["main.py"]

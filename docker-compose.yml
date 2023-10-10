@@ -5,18 +5,7 @@ services:
       - database:/var/lib/postgresql/data
     env_file:
       - .env
-
-  app:
-    build:
-      dockerfile: Dockerfile
-      context: .
-    env_file:
-      - .env
-    depends_on:
-      - database
-    command: >
-      sh -c "python main.py"
-
+      
   redis:
     image: redis:latest
     hostname: redis
