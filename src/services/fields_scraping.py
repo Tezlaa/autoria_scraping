@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, ResultSet
 
 
 class FieldScraping:
-    def get_phone_number_hash(self, soup: BeautifulSoup) -> str:
+    def _get_phone_number_hash(self, soup: BeautifulSoup) -> str:
         script_with_hash = soup.select_one('script[class^="js-user-secure"]')
         
         if script_with_hash is None:
@@ -20,7 +20,7 @@ class FieldScraping:
         
         return data_hash
     
-    def get_image_url(self, soup: BeautifulSoup) -> Optional[str]:
+    def _get_image_url(self, soup: BeautifulSoup) -> Optional[str]:
         main_block = soup.find('main', class_='auto-content')
         if main_block is None:
             raise ValueError('Not found image main block')
@@ -35,7 +35,7 @@ class FieldScraping:
         
         return main_image.get('srcset')  # type: ignore
     
-    def get_images_count(self, soup: BeautifulSoup) -> int:
+    def _get_images_count(self, soup: BeautifulSoup) -> int:
         images_block = soup.find('a', class_='show-all link-dotted')
         if images_block is not None:
             return int(images_block.text.split(' ')[2])
@@ -48,7 +48,7 @@ class FieldScraping:
         
         return 0
 
-    def get_price_usd(self, soup: BeautifulSoup) -> int:
+    def _get_price_usd(self, soup: BeautifulSoup) -> int:
         price_block = soup.find('span', class_='price_value')
         if price_block is None:
             raise ValueError('Not found price block')
@@ -65,28 +65,28 @@ class FieldScraping:
         else:
             return int(re.sub(r'\D', '', price_str_text))
                 
-    def get_car_number(self, soup: BeautifulSoup) -> Optional[str]:
-        car_number = self.find_text(soup, 'span', {'class_': 'state-num'})
+    def _get_car_number(self, soup: BeautifulSoup) -> Optional[str]:
+        car_number = self._find_text(soup, 'span', {'class_': 'state-num'})
         if car_number is None:
             return None
         return car_number.replace(' Ми розпізнали держномер авто на фото та перевірили його за реєстрами МВС.', '')
     
-    def get_vin_code(self, soup: BeautifulSoup) -> Optional[str]:
-        car_vin = self.find_text(soup, 'span', {'class_': 'label-vin'})
+    def _get_vin_code(self, soup: BeautifulSoup) -> Optional[str]:
+        car_vin = self._find_text(soup, 'span', {'class_': 'label-vin'})
         if car_vin is not None:
             return car_vin
 
-        car_vin = self.find_text(soup, 'span', {'class_': 'vin-code'})
+        car_vin = self._find_text(soup, 'span', {'class_': 'vin-code'})
         if car_vin is not None:
             return car_vin
 
         return None
     
-    def find_text(self, soup: BeautifulSoup, tag: str, atribute_value: dict) -> Optional[str]:
+    def _find_text(self, soup: BeautifulSoup, tag: str, atribute_value: dict) -> Optional[str]:
         find_element = soup.find(tag, **atribute_value)
         return find_element.text if find_element is not None else None
     
-    def get_username(self, soup: BeautifulSoup) -> Optional[str]:
+    def _get_username(self, soup: BeautifulSoup) -> Optional[str]:
         seller_info = soup.find('div', class_='seller_info_title grey')
         seller_info_company = soup.find('h4', class_='seller_info_name')
         seller_info_person = soup.find('div', class_='seller_info_name')
@@ -96,5 +96,5 @@ class FieldScraping:
         
         return seller_info_person.text.strip() if seller_info_person is not None else None
 
-    def get_all_tickets(self, soup: BeautifulSoup) -> ResultSet:
+    def _get_all_tickets(self, soup: BeautifulSoup) -> ResultSet:
         return soup.findAll('section', class_='ticket-item')

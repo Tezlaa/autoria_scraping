@@ -18,7 +18,9 @@ class Database:
             port=DATABASE.get('PORT'),
         )
         self.cursor = self.conn.cursor()
-        
+        self._create_table()
+    
+    def _create_table(self) -> None:
         self.cursor.execute(
             '''CREATE TABLE IF NOT EXISTS used_cars (
                 id serial PRIMARY KEY,

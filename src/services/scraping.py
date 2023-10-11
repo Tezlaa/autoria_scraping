@@ -19,13 +19,13 @@ class Scraping(FieldScraping):
     
     def start_scraping(self) -> None:
         page = self.url
-        all_tickets = self.__get_all_tickets_in_page(page)
+        all_tickets = self._get_all_tickets_in_page(page)
         
         while all_tickets != 0:
             for ticket in all_tickets:
-                ticket_link = self.__get_ticket_link(ticket)
+                ticket_link = self._get_ticket_link(ticket)
                 ticket_page = self.get_page_response(ticket_link).text
-                ticket_data = self.__scraping_ticket_page(
+                ticket_data = self._scraping_ticket_page(
                     ticket_link,
                     BeautifulSoup(ticket_page, 'html.parser'),
                 )
@@ -33,7 +33,7 @@ class Scraping(FieldScraping):
                 self.database.add_car(ticket_data)
             
             page = self.get_new_page(page)
-            all_tickets = self.__get_all_tickets_in_page(page)
+            all_tickets = self._get_all_tickets_in_page(page)
     
     def get_new_page(self, url: str) -> str:
         index_number_page_start = url.find('&page=') + 1
@@ -52,22 +52,22 @@ class Scraping(FieldScraping):
         
         return response
     
-    def __get_all_tickets_in_page(self, url: str) -> ResultSet:
+    def _get_all_tickets_in_page(self, url: str) -> ResultSet:
         main_page = self.get_page_response(url).text
         soup_main_page = BeautifulSoup(main_page, 'html.parser')
-        return self.get_all_tickets(soup_main_page)
+        return self._get_all_tickets(soup_main_page)
     
-    def __scraping_ticket_page(self, ticket_url: str, soup: BeautifulSoup) -> TicketInfo:
+    def _scraping_ticket_page(self, ticket_url: str, soup: BeautifulSoup) -> TicketInfo:
         car_id = int(ticket_url.split('_')[-1].split('.html')[0])
-        phone_number = self.__get_phone_number(car_id, soup)
-        title = self.find_text(soup, 'h3', {'class_': 'auto-content_title'})
-        price_usd = self.get_price_usd(soup)
-        odometer = self.__convert_odometer(self.find_text(soup, 'div', {'class_': 'bold dhide'}))
-        username = self.get_username(soup)
-        image_url = self.get_image_url(soup)
-        images_count = self.get_images_count(soup)
-        car_vin = self.get_vin_code(soup)
-        car_number = self.get_car_number(soup)
+        phone_number = self._get_phone_number(car_id, soup)
+        title = self._find_text(soup, 'h3', {'class_': 'auto-content_title'})
+        price_usd = self._get_price_usd(soup)
+        odometer = self._convert_odometer(self._find_text(soup, 'div', {'class_': 'bold dhide'}))
+        username = self._get_username(soup)
+        image_url = self._get_image_url(soup)
+        images_count = self._get_images_count(soup)
+        car_vin = self._get_vin_code(soup)
+        car_number = self._get_car_number(soup)
         datetime_found = datetime.now()
         
         return TicketInfo(
@@ -77,20 +77,20 @@ class Scraping(FieldScraping):
             title=title, car_number=car_number,
         )
     
-    def __convert_odometer(self, thousands_str: str | None) -> int:
+    def _convert_odometer(self, thousands_str: str | None) -> int:
         if thousands_str is None:
             raise ValueError('Odometer is not found')
         
         thousands = thousands_str.strip().split(' ')[0] + '000'
         return int(thousands)
         
-    def __get_phone_number(self, car_id: int, soup: BeautifulSoup) -> int:
-        data_hash = self.get_phone_number_hash(soup)
+    def _get_phone_number(self, car_id: int, soup: BeautifulSoup) -> int:
+        data_hash = self._get_phone_number_hash(soup)
         api_url = f'https://auto.ria.com/users/phones/{car_id}?hash={data_hash}'
         number = self.get_page_response(api_url).json().get('formattedPhoneNumber')
         currect_format_number = number.strip().replace('(', '').replace(')', '').replace(' ', '')
         return int(currect_format_number)
         
-    def __get_ticket_link(self, ticket) -> str:
+    def _get_ticket_link(self, ticket) -> str:
         address_tag = ticket.find('a', class_='address')
         return address_tag.get('href')
